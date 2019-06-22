@@ -9,6 +9,7 @@ import android.util.Log;
 
 public class CallStartedReceiver extends BroadcastReceiver {
 	static boolean alreadyStarted = false;
+
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		if (!alreadyStarted && AppContext.isEnabled()) {
@@ -20,26 +21,27 @@ public class CallStartedReceiver extends BroadcastReceiver {
 			alreadyStarted = true;
 		}
 	}
+
+	private class MyPhoneStateListener extends PhoneStateListener {
+		private Context context;
+
+		MyPhoneStateListener(Context c) {
+			this.context = c;
+		}
+
+		public void onCallStateChanged(int state,String incomingNumber){
+			switch(state){
+				case TelephonyManager.CALL_STATE_IDLE:
+					context.stopService(new Intent(context, WaitForSlamService.class));
+					break;
+				case TelephonyManager.CALL_STATE_OFFHOOK:
+					context.stopService(new Intent(context, WaitForSlamService.class));
+					context.startService(new Intent(context, WaitForSlamService.class));
+					break;
+				case TelephonyManager.CALL_STATE_RINGING:
+					break;
+			}
+		}
+	}
 }
 
-class MyPhoneStateListener extends PhoneStateListener {
-	private Context context;
-	
-	public MyPhoneStateListener(Context c) {
-		this.context = c;
-	}
-	
-	public void onCallStateChanged(int state,String incomingNumber){
-		switch(state){
-	    case TelephonyManager.CALL_STATE_IDLE:
-	    	context.stopService(new Intent(context, WaitForSlamService.class));
-	    break;
-	    case TelephonyManager.CALL_STATE_OFFHOOK:
-	    	context.stopService(new Intent(context, WaitForSlamService.class));
-	    	context.startService(new Intent(context, WaitForSlamService.class));
-	    break;
-	    case TelephonyManager.CALL_STATE_RINGING:
-	    break;
-	    }
-	} 
-}

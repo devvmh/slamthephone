@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 7
+    compileSdkVersion 28
     buildToolsVersion "28.0.3"
 
     defaultConfig {
         applicationId "com.callysto.devin.slamthephone"
-        minSdkVersion 7
-        targetSdkVersion 16
+        minSdkVersion 26
+        targetSdkVersion 28
     }
 
     buildTypes {

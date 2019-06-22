@@ -1,8 +1,5 @@
 package com.callysto.devin.slamthephone;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -18,12 +15,15 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.RemoteException;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.android.internal.telephony.ITelephony;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class WaitForSlamService extends Service {
 	private SensorManager mSensorManager;
@@ -88,13 +88,15 @@ public class WaitForSlamService extends Service {
 		Method m = null;
 		try {
 			m = c.getDeclaredMethod("getITelephony");
-		} catch (SecurityException e) {} catch (NoSuchMethodException e) {}
-		m.setAccessible(true);
+			m.setAccessible(true);
+		} catch (SecurityException | NoSuchMethodException | NullPointerException e) {
+			e.printStackTrace();
+		}
 		try {
-			telephonyService = (ITelephony)m.invoke(telephonyManager);
-		} catch (IllegalArgumentException e) {} 
-		  catch (IllegalAccessException e) {} 
-		  catch (InvocationTargetException e) {}
+			telephonyService = (ITelephony) m.invoke(telephonyManager);
+		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void setUpAccListener() {
@@ -108,11 +110,10 @@ public class WaitForSlamService extends Service {
 	@SuppressLint("NewApi")
 	private void notify(String msg) {
 		Log.v("SlamThePhone", msg);
-	    String ns = Context.NOTIFICATION_SERVICE;
-	    NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);
+		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 	    PendingIntent emptyIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(), 0);
-	    
-	    Notification noti = new Notification.Builder(this)
+
+	    Notification noti = new Notification.Builder(this, "com.callysto.devin.slamthephone.NotificationChannel")
 	       .setContentTitle("Slam the Phone")
 	       .setContentText(msg)
 	       .setSmallIcon(R.drawable.phone)
@@ -123,16 +124,7 @@ public class WaitForSlamService extends Service {
 	    mNotificationManager.notify(notification_id, noti);
 	    notification_id ++;
 	}
-	
-	private boolean hangup() {
-		try {
-			telephonyService.endCall();
-			return true;
-		} catch (RemoteException e1) {
-			return false;
-		}
-	}
-	
+
 	private class AccListener implements SensorEventListener {
 		boolean slammed = false;
 		float x = 0, y = 0, z = 0;
@@ -148,26 +140,22 @@ public class WaitForSlamService extends Service {
 			x = e.values[0];
 			y = e.values[1];
 			z = e.values[2];
-			//Log.v("SlamThePhone", x + "," + y + "," + z);
-			if (slammed == false && y < 0) {
+			if (!slammed && y < 0) {
 				if (y < -10 && prevX < 5 && x > 5 && prevZ > 10 ) {
 					WaitForSlamService.this.notify("Slamming!");
 					Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-					v.vibrate(100);
+					v.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
 					mp.start(); //play slam sound
 
-					if (practising) {
+					if (!practising) {
 						//wait 1.5s for the realization to sink in, then hang up
 						slammed = true;
 						new Handler().postDelayed(new Runnable() {
 							public void run() {
 								WaitForSlamService.this.notify("Trying to hang up");
-								slammed = hangup();
-								if (slammed) {
-									WaitForSlamService.this.notify("Slammed phone!");
-								} else if (! practising) {
-									WaitForSlamService.this.notify("Failed to slam");
-								}
+								telephonyService.endCall();
+								slammed = true;
+								WaitForSlamService.this.notify("Slammed phone!");
 							}
 						}, (long) (1.5*1000)); //1.5s delay
 					}

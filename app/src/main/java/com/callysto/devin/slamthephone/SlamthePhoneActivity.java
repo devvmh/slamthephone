@@ -1,25 +1,28 @@
 package com.callysto.devin.slamthephone;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
-@TargetApi(16)
-public class SlamthePhoneActivity extends Activity {	
+import android.widget.Toast;
+
+@TargetApi(28)
+public class SlamthePhoneActivity extends Activity {
+	private static final int PERMISSION_REQUEST_READ_PHONE_STATE = 1;
 	private CheckBox checkbox;
 	private SharedPreferences savedData;
-	public static Button start, stop;
+	public Button start, stop;
 	private TextView help_msg;
 	private boolean portrait = true;
 	
@@ -56,29 +59,35 @@ public class SlamthePhoneActivity extends Activity {
         }
 
 		findViews();
+		requestNeededPermissions();
     	checkPreferences();
     	//update the checkbox's value to the one saved in preferences
     	checkCheckbox(null);
-    }
-	
+
+		requestNeededPermissions();
+	}
+
+	private void requestNeededPermissions() {
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+			if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED || checkSelfPermission(Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED) {
+				String[] permissions = {Manifest.permission.READ_PHONE_STATE, Manifest.permission.CALL_PHONE};
+				requestPermissions(permissions, PERMISSION_REQUEST_READ_PHONE_STATE);
+			}
+		}
+	}
+
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		outState.putFloat("alpha", alpha);
 		outState.putBoolean("fadingIn", fadingIn);
 	}
 	
-	@SuppressWarnings("deprecation")
-	@TargetApi(13)
+	@TargetApi(28)
 	private void setContentViewBasedOnOrientation() {
         WindowManager winMan = (WindowManager) getBaseContext().getSystemService(Context.WINDOW_SERVICE);
         if (winMan != null) {
         	Point size = new Point();
-        	if (Build.VERSION.SDK_INT < 13) {
-        		size.x = winMan.getDefaultDisplay().getWidth();
-        		size.y = winMan.getDefaultDisplay().getHeight();
-        	} else {
-        		winMan.getDefaultDisplay().getSize(size);
-        	}
+        	winMan.getDefaultDisplay().getSize(size);
         	if (size.x <= size.y) {
                 // Portrait
                 setContentView(R.layout.main_portrait);
@@ -92,19 +101,16 @@ public class SlamthePhoneActivity extends Activity {
 	}
         
     private void findViews() {
-    	checkbox = (CheckBox) findViewById((portrait) ? R.id.enabled : R.id.enabled_landscape);
-        help_msg = (TextView) findViewById((portrait) ? R.id.help_message : R.id.help_message_landscape);
-       	start = (Button) findViewById((portrait) ? R.id.startService : R.id.startService_landscape);
-       	stop = (Button) findViewById((portrait) ? R.id.stopService : R.id.stopService_landscape);
+    	checkbox = findViewById((portrait) ? R.id.enabled : R.id.enabled_landscape);
+        help_msg = findViewById((portrait) ? R.id.help_message : R.id.help_message_landscape);
+       	start = findViewById((portrait) ? R.id.startService : R.id.startService_landscape);
+       	stop = findViewById((portrait) ? R.id.stopService : R.id.stopService_landscape);
        	
        	if (help_msg == null) {
-       		help_msg = (TextView) findViewById((portrait) ? R.id.help_message : R.id.help_message_landscape);
-       	} else {
-       	if (Build.VERSION.SDK_INT < 11) {
-       		help_msg.setVisibility(View.INVISIBLE);
+       		help_msg = findViewById((portrait) ? R.id.help_message : R.id.help_message_landscape);
        	} else {
        		help_msg.setAlpha(alpha);
-       	}}
+       	}
     }
         
     public void checkPreferences() {
@@ -117,7 +123,7 @@ public class SlamthePhoneActivity extends Activity {
     public void checkCheckbox(View v) {
     	boolean val = checkbox.isChecked();
     	AppContext.setIsEnabled(val);
-    	savedData.edit().putBoolean("enabled", checkbox.isChecked()).commit();
+    	savedData.edit().putBoolean("enabled", checkbox.isChecked()).apply();
     	if (stop.isEnabled()) {
     		stopService(new Intent(this, WaitForSlamService.class));
     	}
@@ -129,22 +135,12 @@ public class SlamthePhoneActivity extends Activity {
     	fadingIn = !fadingIn; //toggle value
     	help_msg.setVisibility(View.VISIBLE);
     	if (fadingIn) {
-    		if (Build.VERSION.SDK_INT < 11) { 
-    			help_msg.setVisibility(View.VISIBLE);
-    		} else {
-    			change = 1f / NUM_FRAMES; //positive
-    			h.removeCallbacks(r);
-    			h.post(r);
-    		}
+			change = 1f / NUM_FRAMES; //positive
     	} else {
-    		if (Build.VERSION.SDK_INT < 11) {
-    			help_msg.setVisibility(View.INVISIBLE);
-    		} else {
-    			change = - 1f / NUM_FRAMES; //negative
-    			h.removeCallbacks(r);
-    			h.post(r);
-    		}
+			change = - 1f / NUM_FRAMES; //negative
     	}
+		h.removeCallbacks(r);
+		h.post(r);
     }
     
     public void startService(View v) {
@@ -161,4 +157,15 @@ public class SlamthePhoneActivity extends Activity {
     	stop.setEnabled(false);
     	start.setEnabled(true);
     }
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+		if (requestCode == PERMISSION_REQUEST_READ_PHONE_STATE) {
+			if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+				Toast.makeText(this, "Permission granted: " + PERMISSION_REQUEST_READ_PHONE_STATE, Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(this, "Permission NOT granted: " + PERMISSION_REQUEST_READ_PHONE_STATE, Toast.LENGTH_SHORT).show();
+			}
+		}
+	}
 }
