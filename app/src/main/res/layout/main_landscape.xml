@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/landscape" >
+    
+    <!-- put it on the bottom -->
+
+    <TextView
+        android:id="@+id/help_message_landscape"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/startService_landscape"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:text="@string/help_message"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <CheckBox
+        android:id="@+id/enabled_landscape"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"
+        android:onClick="checkCheckbox"
+        android:text="@string/enable" />
+
+    <Button
+        android:id="@+id/startService_landscape"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/enabled_landscape"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="10dp"
+        android:onClick="startService"
+        android:text="@string/start_service" />
+
+    <Button
+        android:id="@+id/stopService_landscape"
+        android:layout_width="44dip"
+        android:layout_height="44dip"
+        android:layout_alignLeft="@+id/startService_landscape"
+        android:layout_alignRight="@+id/startService_landscape"
+        android:layout_below="@+id/startService_landscape"
+        android:layout_marginTop="10dp"
+        android:onClick="stopService"
+        android:text="@string/stop_service" />
+
+    <Button
+        android:id="@+id/help_landscape"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:onClick="helpButtonOnClick"
+        android:text="@string/help"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+</RelativeLayout>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/portrait" >
+
+    <CheckBox
+        android:id="@+id/enabled"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:onClick="checkCheckbox"
+        android:text="@string/enable" />
+
+    <Button
+        android:id="@+id/startService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/enabled"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:onClick="startService"
+        android:text="@string/start_service" />
+
+    <Button
+        android:id="@+id/stopService"
+        android:layout_width="44dip"
+        android:layout_height="44dip"
+        android:layout_alignLeft="@+id/startService"
+        android:layout_alignRight="@+id/startService"
+        android:layout_below="@+id/startService"
+        android:layout_marginTop="10dp"
+        android:onClick="stopService"
+        android:text="@string/stop_service" />
+
+    <TextView
+        android:id="@+id/help_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/stopService"
+        android:layout_marginTop="40dip"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        android:text="@string/help_message"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <Button
+        android:id="@+id/help"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:onClick="helpButtonOnClick"
+        android:text="@string/help"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+</RelativeLayout>

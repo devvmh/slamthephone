@@ -1,0 +1,25 @@
+# Generated files
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+bin/
+gen/
+out/
+release/
+
+# Config files
+.gradle/
+build/
+local.properties
+
+# Log Files
+*.log
+
+# Android Studio / IntelliJ
+.navigation/
+captures/
+.externalNativeBuild
+*.iml
+.idea/

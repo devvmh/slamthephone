@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, SlamthePhoneActivity!</string>
+    <string name="app_name">Slam the Phone</string>
+    <string name="enable">Enable Phone Slamming?</string>
+    <string name="start_service">Practice slamming the phone!</string>
+    <string name="stop_service">Stop practicing</string>
+    <string name="help">Help?</string>
+    <string name="help_message">Bring the phone down in a slamming motion to end a call with a bang! You can practise this motion with the buttons above. You don\'t need to worry about starting the app when you make a call - just make sure that you\'ve checked off the checkbox above!</string>
+
+</resources>
